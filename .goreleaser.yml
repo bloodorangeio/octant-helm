@@ -1,0 +1,18 @@
+builds:
+  - main: ./cmd/octant-helm
+    binary: ./octant-helm
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+    ldflags:
+      - -w
+
+archive:
+  format: tar.gz
+  files:
+    - LICENSE
