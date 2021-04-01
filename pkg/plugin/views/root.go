@@ -28,7 +28,7 @@ import (
 	"github.com/bloodorangeio/octant-helm/pkg/helm"
 )
 
-func BuildRootViewForRequest(request *service.Request) (component.Component, error) {
+func BuildRootViewForRequest(request service.Request) (component.Component, error) {
 	ctx := request.Context()
 	client := request.DashboardClient()
 
@@ -63,15 +63,11 @@ func BuildRootViewForRequest(request *service.Request) (component.Component, err
 				fmt.Sprintf("%s-%s", r.Chart.Metadata.Name, r.Chart.Metadata.Version)),
 			"App Version": component.NewText(r.Chart.Metadata.AppVersion),
 		}
-		t := "-"
-		if tspb := r.Info.LastDeployed; !tspb.IsZero() {
-			t = tspb.String()
-		}
-		tr["Updated"] = component.NewText(t)
+		tr["Updated"] = component.NewTimestamp(r.Info.LastDeployed.Time)
 		table.Add(tr)
 	}
 
-	table.Sort("Name", false)
+	table.Sort("Name")
 
 	flexLayout := component.NewFlexLayout("")
 	flexLayout.AddSections(component.FlexLayoutSection{
