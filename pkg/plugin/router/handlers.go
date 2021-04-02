@@ -23,7 +23,7 @@ import (
 	"github.com/bloodorangeio/octant-helm/pkg/plugin/views"
 )
 
-func rootHandler(request *service.Request) (component.ContentResponse, error) {
+func rootHandler(request service.Request) (component.ContentResponse, error) {
 	rootView, err := views.BuildRootViewForRequest(request)
 	if err != nil {
 		return component.EmptyContentResponse, err
@@ -33,12 +33,12 @@ func rootHandler(request *service.Request) (component.ContentResponse, error) {
 	return *response, nil
 }
 
-func helmReleaseHandler(request *service.Request) (component.ContentResponse, error) {
-	helmReleaseView, err := views.BuildHelmReleaseViewForRequest(request)
+func helmReleaseHandler(request service.Request) (component.ContentResponse, error) {
+	helmReleaseView, title, err := views.BuildHelmReleaseViewForRequest(request)
 	if err != nil {
 		return component.EmptyContentResponse, err
 	}
-	response := component.NewContentResponse(nil)
+	response := component.NewContentResponse(title)
 	response.Add(helmReleaseView)
 	return *response, nil
 }

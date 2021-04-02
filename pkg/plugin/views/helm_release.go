@@ -30,8 +30,8 @@ import (
 	"github.com/bloodorangeio/octant-helm/pkg/helm"
 )
 
-func BuildHelmReleaseViewForRequest(request *service.Request) (component.Component, error) {
-	releaseName := strings.TrimPrefix(request.Path, "/")
+func BuildHelmReleaseViewForRequest(request service.Request) (component.Component, []component.TitleComponent, error) {
+	releaseName := strings.TrimPrefix(request.Path(), "/")
 
 	ctx := request.Context()
 	client := request.DashboardClient()
@@ -47,15 +47,16 @@ func BuildHelmReleaseViewForRequest(request *service.Request) (component.Compone
 
 	if err != nil {
 		log.Println(err)
-		return nil, err
+		return nil, nil, err
 	}
 
 	r := helm.UnstructuredListToHelmReleaseByName(ul, releaseName)
 	if r == nil {
-		return component.NewText("Error: release not found"), nil
+		return component.NewText("Error: release not found"), nil, nil
 	}
 
-	header := component.NewMarkdownText(fmt.Sprintf("## [Helm](/#/helm) / %s", releaseName))
+	title := component.Title(component.NewLink("", "Helm", "/helm"))
+	title = append(title, component.NewText(releaseName))
 
 	statusSummarySections := []component.SummarySection{
 		{"Name", component.NewText(r.Name)},
@@ -67,16 +68,15 @@ func BuildHelmReleaseViewForRequest(request *service.Request) (component.Compone
 
 	statusSummary := component.NewSummary("Status", statusSummarySections...)
 
-	notesCard := component.NewCard("Notes")
+	notesCard := component.NewCard(component.TitleFromString("Notes"))
 	notesBody := component.NewMarkdownText(fmt.Sprintf("```\n%s\n```", strings.TrimSpace(r.Info.Notes)))
 	notesCard.SetBody(notesBody)
 
 	flexLayout := component.NewFlexLayout("")
 	flexLayout.AddSections(component.FlexLayoutSection{
-		{Width: component.WidthFull, View: header},
 		{Width: component.WidthHalf, View: statusSummary},
-		{Width: component.WidthHalf, View: notesCard},
+		{Width: component.WidthFull, View: notesCard},
 	})
 
-	return flexLayout, nil
+	return flexLayout, title, nil
 }

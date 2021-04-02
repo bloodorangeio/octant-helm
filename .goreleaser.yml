@@ -12,7 +12,9 @@ builds:
     ldflags:
       - -w
 
-archive:
-  format: tar.gz
-  files:
-    - LICENSE
+archives:
+  -
+    id: octant-helm
+    format: tar.gz
+    files:
+      - LICENSE
