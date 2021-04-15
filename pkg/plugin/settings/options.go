@@ -17,6 +17,7 @@ limitations under the License.
 package settings // import "github.com/bloodorangeio/octant-helm/pkg/plugin/settings"
 
 import (
+	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
 	"strings"
 
 	"github.com/vmware-tanzu/octant/pkg/navigation"
@@ -27,6 +28,7 @@ import (
 
 func GetOptions() []service.PluginOption {
 	return []service.PluginOption{
+		service.WithActionHandler(actions.ActionHandler),
 		service.WithNavigation(
 			func(_ *service.NavigationRequest) (navigation.Navigation, error) {
 				return navigation.Navigation{
