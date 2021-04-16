@@ -67,13 +67,13 @@ func BuildRootViewForRequest(request service.Request) (component.Component, erro
 		}
 		tr["Updated"] = component.NewTimestamp(r.Info.LastDeployed.Time)
 		tr.AddAction(component.GridAction{
-			Name: "Uninstall",
+			Name:       "Uninstall",
 			ActionPath: actions.UninstallHelmReleaseAction,
 			Payload: action.Payload{
 				"releaseName": r.Name,
 			},
 			Confirmation: &component.Confirmation{
-				Title: "Delete Helm Release - " + r.Name,
+				Title: "Uninstall Helm Release - " + r.Name,
 				Body:  "Are you sure you want to uninstall?",
 			},
 			Type: "",
