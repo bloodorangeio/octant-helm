@@ -18,6 +18,8 @@ package views // import "github.com/bloodorangeio/octant-helm/pkg/plugin/views"
 
 import (
 	"fmt"
+	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
+	"github.com/vmware-tanzu/octant/pkg/action"
 	"strconv"
 
 	"github.com/vmware-tanzu/octant/pkg/plugin/service"
@@ -64,6 +66,18 @@ func BuildRootViewForRequest(request service.Request) (component.Component, erro
 			"App Version": component.NewText(r.Chart.Metadata.AppVersion),
 		}
 		tr["Updated"] = component.NewTimestamp(r.Info.LastDeployed.Time)
+		tr.AddAction(component.GridAction{
+			Name: "Uninstall",
+			ActionPath: actions.UninstallHelmReleaseAction,
+			Payload: action.Payload{
+				"releaseName": r.Name,
+			},
+			Confirmation: &component.Confirmation{
+				Title: "Delete Helm Release - " + r.Name,
+				Body:  "Are you sure you want to uninstall?",
+			},
+			Type: "",
+		})
 		table.Add(tr)
 	}
 
