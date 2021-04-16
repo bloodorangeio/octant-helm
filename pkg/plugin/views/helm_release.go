@@ -18,7 +18,10 @@ package views // import "github.com/bloodorangeio/octant-helm/pkg/plugin/views"
 
 import (
 	"fmt"
+	"github.com/bloodorangeio/octant-helm/pkg/config"
+	helmAction "helm.sh/helm/v3/pkg/action"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -68,6 +71,33 @@ func BuildHelmReleaseViewForRequest(request service.Request) (component.Componen
 
 	statusSummary := component.NewSummary("Status", statusSummarySections...)
 
+	actionConfig, err := config.NewActionConfig(request.ClientState().Namespace)
+	if err != nil {
+		return nil, nil, err
+	}
+	historyClient := helmAction.NewHistory(actionConfig)
+	history, err := historyClient.Run(r.Name)
+	if err != nil {
+		return nil, nil, err
+	}
+	historyColumns := component.NewTableCols("Revision", "Updated", "Status", "Chart", "App Version", "Description")
+	historyTable := component.NewTable("History", "There is no history!", historyColumns)
+	for i := len(history)-1; i >= 0; i-- {
+		var appVersion string
+		h := history[i]
+		if h.Chart.Metadata != nil {
+			appVersion = h.Chart.Metadata.Version
+		}
+		historyTable.Add(component.TableRow{
+			"Revision":    component.NewText(strconv.Itoa(h.Version)),
+			"Updated":     component.NewTimestamp(h.Info.LastDeployed.Time),
+			"Status":      component.NewText(h.Info.Status.String()),
+			"Chart":       component.NewText(fmt.Sprintf("%s-%s", h.Name, h.Chart.Metadata.Version)),
+			"App Version": component.NewText(appVersion),
+			"Description": component.NewText(h.Info.Description),
+		})
+	}
+
 	notesCard := component.NewCard(component.TitleFromString("Notes"))
 	notesBody := component.NewMarkdownText(fmt.Sprintf("```\n%s\n```", strings.TrimSpace(r.Info.Notes)))
 	notesCard.SetBody(notesBody)
@@ -75,6 +105,7 @@ func BuildHelmReleaseViewForRequest(request service.Request) (component.Componen
 	flexLayout := component.NewFlexLayout("")
 	flexLayout.AddSections(component.FlexLayoutSection{
 		{Width: component.WidthHalf, View: statusSummary},
+		{Width: component.WidthFull, View: historyTable},
 		{Width: component.WidthFull, View: notesCard},
 	})
 
