@@ -25,6 +25,7 @@ func GetCapabilities() *plugin.Capabilities {
 	return &plugin.Capabilities{
 		ActionNames: []string{
 			actions.UninstallHelmReleaseAction,
+			actions.UpdateHelmReleaseValues,
 		},
 		IsModule: true,
 	}
