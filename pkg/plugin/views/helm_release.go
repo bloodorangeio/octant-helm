@@ -19,7 +19,12 @@ package views // import "github.com/bloodorangeio/octant-helm/pkg/plugin/views"
 import (
 	"fmt"
 	"github.com/bloodorangeio/octant-helm/pkg/config"
+	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
 	helmAction "helm.sh/helm/v3/pkg/action"
+	//"helm.sh/helm/v3/pkg/chartutil"
+	"sigs.k8s.io/yaml"
+
+	//"helm.sh/helm/v3/pkg/cli"
 	"log"
 	"strconv"
 	"strings"
@@ -92,7 +97,7 @@ func BuildHelmReleaseViewForRequest(request service.Request) (component.Componen
 			"Revision":    component.NewText(strconv.Itoa(h.Version)),
 			"Updated":     component.NewTimestamp(h.Info.LastDeployed.Time),
 			"Status":      component.NewText(h.Info.Status.String()),
-			"Chart":       component.NewText(fmt.Sprintf("%s-%s", h.Name, h.Chart.Metadata.Version)),
+			"Chart":       component.NewText(fmt.Sprintf("%s-%s", h.Chart.Metadata.Name, h.Chart.Metadata.Version)),
 			"App Version": component.NewText(appVersion),
 			"Description": component.NewText(h.Info.Description),
 		})
@@ -102,7 +107,8 @@ func BuildHelmReleaseViewForRequest(request service.Request) (component.Componen
 	notesBody := component.NewMarkdownText(fmt.Sprintf("```\n%s\n```", strings.TrimSpace(r.Info.Notes)))
 	notesCard.SetBody(notesBody)
 
-	flexLayout := component.NewFlexLayout("")
+	flexLayout := component.NewFlexLayout("Summary")
+	flexLayout.SetAccessor("summary")
 	flexLayout.AddSections(component.FlexLayoutSection{
 		{Width: component.WidthHalf, View: statusSummary},
 		{Width: component.WidthFull, View: historyTable},
@@ -110,4 +116,54 @@ func BuildHelmReleaseViewForRequest(request service.Request) (component.Componen
 	})
 
 	return flexLayout, title, nil
+}
+
+func BuildHelmReleaseViewForValues(request service.Request) (component.Component, error) {
+	releaseName := strings.TrimPrefix(request.Path(), "/")
+	client := request.DashboardClient()
+	ul, err := client.List(request.Context(), store.Key{
+		APIVersion: "v1",
+		Kind:       "Secret",
+		Selector: &labels.Set{
+			"owner": "helm",
+			"name":  releaseName,
+		},
+	})
+	if err != nil {
+		return component.NewError(component.TitleFromString("Cannot list Helm releases: "), err), nil
+	}
+
+	r := helm.UnstructuredListToHelmReleaseByName(ul, releaseName)
+	if r == nil {
+		return component.NewText("Error: release not found"), nil
+	}
+
+
+	actionConfig, err := config.NewActionConfig(request.ClientState().Namespace)
+	if err != nil {
+		return component.NewError(component.TitleFromString("Create Helm config: "), err), nil
+	}
+	valuesClient := helmAction.NewGetValues(actionConfig)
+	values, err := valuesClient.Run(r.Name)
+	if err != nil {
+		return component.NewError(component.TitleFromString("Get values: "), err), nil
+	}
+
+	// No user supplied values so show all supplied defaults instead
+	if len(values) == 0 {
+		values = r.Chart.Values
+	}
+	v, err := yaml.Marshal(values)
+	if err != nil {
+		return component.NewError(component.TitleFromString("Error"), err), nil
+	}
+
+	editor := component.NewEditor(component.TitleFromString("Values"), string(v), false)
+	editor.Config.Language = "yaml"
+	editor.Config.Metadata = map[string]string{
+		"releaseName": releaseName,
+	}
+	editor.SetAccessor("chart")
+	editor.Config.SubmitAction = actions.UpdateHelmReleaseValues
+	return editor, nil
 }

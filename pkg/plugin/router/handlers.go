@@ -38,7 +38,12 @@ func helmReleaseHandler(request service.Request) (component.ContentResponse, err
 	if err != nil {
 		return component.EmptyContentResponse, err
 	}
+	helmEditorView, err := views.BuildHelmReleaseViewForValues(request)
+	if err != nil {
+		return component.EmptyContentResponse, err
+	}
+
 	response := component.NewContentResponse(title)
-	response.Add(helmReleaseView)
+	response.Add(helmReleaseView, helmEditorView)
 	return *response, nil
 }
