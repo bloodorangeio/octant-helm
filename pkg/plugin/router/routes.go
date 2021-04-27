@@ -22,5 +22,6 @@ import (
 
 func InitRoutes(router *service.Router) {
 	router.HandleFunc("", rootHandler)
+	router.HandleFunc("/repositories", helmRepoHandler)
 	router.HandleFunc("/*", helmReleaseHandler)
 }

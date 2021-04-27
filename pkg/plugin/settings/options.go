@@ -30,11 +30,18 @@ func GetOptions() []service.PluginOption {
 	return []service.PluginOption{
 		service.WithActionHandler(actions.ActionHandler),
 		service.WithNavigation(
-			func(_ *service.NavigationRequest) (navigation.Navigation, error) {
+			func(request *service.NavigationRequest) (navigation.Navigation, error) {
 				return navigation.Navigation{
 					Title:    strings.Title(name),
 					Path:     name,
 					IconName: rootNavIcon,
+					Children: []navigation.Navigation{
+						{
+							Title: "Repositories",
+							Path: request.GeneratePath("repositories"),
+							IconName: "folder",
+						},
+					},
 				}, nil
 			},
 			router.InitRoutes,
