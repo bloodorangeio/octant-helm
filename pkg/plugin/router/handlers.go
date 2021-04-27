@@ -47,3 +47,13 @@ func helmReleaseHandler(request service.Request) (component.ContentResponse, err
 	response.Add(helmReleaseView, helmEditorView)
 	return *response, nil
 }
+
+func helmRepoHandler(request service.Request) (component.ContentResponse, error) {
+	repoView, err := views.BuildRepoViewForRequest(request)
+	if err != nil {
+		return component.EmptyContentResponse, err
+	}
+	response := component.NewContentResponse(nil)
+	response.Add(repoView)
+	return *response, nil
+}
