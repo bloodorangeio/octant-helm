@@ -57,3 +57,13 @@ func helmRepoHandler(request service.Request) (component.ContentResponse, error)
 	response.Add(repoView)
 	return *response, nil
 }
+
+func helmEnvironmentHandler(request service.Request) (component.ContentResponse, error) {
+	envView, err := views.BuildHelmEnvViewForRequest(request)
+	if err != nil {
+		return component.EmptyContentResponse, err
+	}
+	response := component.NewContentResponse(nil)
+	response.Add(envView)
+	return *response, nil
+}

@@ -41,6 +41,11 @@ func GetOptions() []service.PluginOption {
 							Path: request.GeneratePath("repositories"),
 							IconName: "folder",
 						},
+						{
+							Title: "Environment",
+							Path: request.GeneratePath("environment"),
+							IconName: "cog",
+						},
 					},
 				}, nil
 			},
