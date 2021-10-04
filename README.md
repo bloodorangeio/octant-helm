@@ -14,7 +14,7 @@ Please see the [releases](https://github.com/bloodorangeio/octant-helm/releases)
 
 ```
 mkdir -p ~/.config/octant/plugins/ && \
-  curl -L https://github.com/bloodorangeio/octant-helm/releases/download/v0.1.0/octant-helm_0.1.0_darwin_amd64.tar.gz | \
+  curl -L https://github.com/bloodorangeio/octant-helm/releases/download/v0.2.0/octant-helm_0.2.0_darwin_amd64.tar.gz | \
   tar xz -C ~/.config/octant/plugins/ octant-helm
 ```
 
@@ -46,7 +46,7 @@ rm -f ~/.config/octant/plugins/octant-helm
 
 ## Development
 
-Requires Go 1.13+ and [fswatch](https://github.com/emcrisostomo/fswatch).
+Requires Go 1.17+ and [fswatch](https://github.com/emcrisostomo/fswatch).
 
 Run `make dev` at the root of this repo, which will do the following:
 

@@ -2,23 +2,25 @@ package actions
 
 import (
 	"fmt"
-	"github.com/bloodorangeio/octant-helm/pkg/config"
-	"github.com/bloodorangeio/octant-helm/pkg/helm"
+
 	"github.com/vmware-tanzu/octant/pkg/action"
 	"github.com/vmware-tanzu/octant/pkg/plugin/service"
 	"github.com/vmware-tanzu/octant/pkg/store"
 	helmAction "helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chartutil"
 	"k8s.io/apimachinery/pkg/labels"
+
+	"github.com/bloodorangeio/octant-helm/pkg/config"
+	"github.com/bloodorangeio/octant-helm/pkg/helm"
 )
 
 const (
-	UpdateHelmReleaseValues = "octant-helm.dev/update"
+	UpdateHelmReleaseValues    = "octant-helm.dev/update"
 	UninstallHelmReleaseAction = "octant-helm.dev/uninstall"
 )
 
 func ActionHandler(request *service.ActionRequest) error {
-	actionConfig, err := config.NewActionConfig(request.ClientState.Namespace)
+	actionConfig, err := config.NewActionConfig(request.ClientState.Namespace())
 	if err != nil {
 		return err
 	}
@@ -58,7 +60,7 @@ func uninstallRelease(request *service.ActionRequest, config *helmAction.Configu
 	}
 
 	alert := action.CreateAlert(action.AlertTypeInfo, "Uninstalled helm release: "+release.Release.Name, action.DefaultAlertExpiration)
-	request.DashboardClient.SendAlert(request.Context(), request.ClientState.ClientID, alert)
+	request.DashboardClient.SendAlert(request.Context(), request.ClientState.ClientID(), alert)
 	return nil
 }
 
@@ -89,10 +91,10 @@ func updateReleaseValues(request *service.ActionRequest, config *helmAction.Conf
 	release, err := upgradeClient.Run(releaseName, r.Chart, v)
 	if err != nil {
 		message := fmt.Sprintf("Unable to upgrade release: %s", err)
-		request.DashboardClient.SendAlert(request.Context(), request.ClientState.ClientID, action.CreateAlert(action.AlertTypeError, message, action.DefaultAlertExpiration))
+		request.DashboardClient.SendAlert(request.Context(), request.ClientState.ClientID(), action.CreateAlert(action.AlertTypeError, message, action.DefaultAlertExpiration))
 	} else {
 		alert := action.CreateAlert(action.AlertTypeInfo, "Upgrade helm release: "+release.Name, action.DefaultAlertExpiration)
-		request.DashboardClient.SendAlert(request.Context(), request.ClientState.ClientID, alert)
+		request.DashboardClient.SendAlert(request.Context(), request.ClientState.ClientID(), alert)
 	}
 	return nil
 }

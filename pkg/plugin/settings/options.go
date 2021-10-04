@@ -17,12 +17,12 @@ limitations under the License.
 package settings // import "github.com/bloodorangeio/octant-helm/pkg/plugin/settings"
 
 import (
-	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
 	"strings"
 
 	"github.com/vmware-tanzu/octant/pkg/navigation"
 	"github.com/vmware-tanzu/octant/pkg/plugin/service"
 
+	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
 	"github.com/bloodorangeio/octant-helm/pkg/plugin/router"
 )
 
@@ -37,13 +37,13 @@ func GetOptions() []service.PluginOption {
 					IconName: rootNavIcon,
 					Children: []navigation.Navigation{
 						{
-							Title: "Repositories",
-							Path: request.GeneratePath("repositories"),
+							Title:    "Repositories",
+							Path:     request.GeneratePath("repositories"),
 							IconName: "folder",
 						},
 						{
-							Title: "Environment",
-							Path: request.GeneratePath("environment"),
+							Title:    "Environment",
+							Path:     request.GeneratePath("environment"),
 							IconName: "cog",
 						},
 					},

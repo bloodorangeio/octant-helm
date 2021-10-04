@@ -13,6 +13,7 @@ endif
 .PHONY: build
 build:
 	@go build -o bin/$(PLUGIN_NAME) cmd/octant-helm/main.go
+	@mkdir -p $(OCTANT_PLUGIN_DIR)/
 	@cp bin/$(PLUGIN_NAME) $(OCTANT_PLUGIN_DIR)/$(PLUGIN_NAME)
 
 .PHONY: dev

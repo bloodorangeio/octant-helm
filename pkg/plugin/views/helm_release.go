@@ -18,13 +18,6 @@ package views // import "github.com/bloodorangeio/octant-helm/pkg/plugin/views"
 
 import (
 	"fmt"
-	"github.com/bloodorangeio/octant-helm/pkg/config"
-	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
-	helmAction "helm.sh/helm/v3/pkg/action"
-	//"helm.sh/helm/v3/pkg/chartutil"
-	"sigs.k8s.io/yaml"
-
-	//"helm.sh/helm/v3/pkg/cli"
 	"log"
 	"strconv"
 	"strings"
@@ -33,9 +26,13 @@ import (
 	"github.com/vmware-tanzu/octant/pkg/plugin/service"
 	"github.com/vmware-tanzu/octant/pkg/store"
 	"github.com/vmware-tanzu/octant/pkg/view/component"
+	helmAction "helm.sh/helm/v3/pkg/action"
 	"k8s.io/apimachinery/pkg/labels"
+	"sigs.k8s.io/yaml"
 
+	"github.com/bloodorangeio/octant-helm/pkg/config"
 	"github.com/bloodorangeio/octant-helm/pkg/helm"
+	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
 )
 
 func BuildHelmReleaseViewForRequest(request service.Request) (component.Component, []component.TitleComponent, error) {
@@ -76,7 +73,7 @@ func BuildHelmReleaseViewForRequest(request service.Request) (component.Componen
 
 	statusSummary := component.NewSummary("Status", statusSummarySections...)
 
-	actionConfig, err := config.NewActionConfig(request.ClientState().Namespace)
+	actionConfig, err := config.NewActionConfig(request.ClientState().Namespace())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -87,7 +84,7 @@ func BuildHelmReleaseViewForRequest(request service.Request) (component.Componen
 	}
 	historyColumns := component.NewTableCols("Revision", "Updated", "Status", "Chart", "App Version", "Description")
 	historyTable := component.NewTable("History", "There is no history!", historyColumns)
-	for i := len(history)-1; i >= 0; i-- {
+	for i := len(history) - 1; i >= 0; i-- {
 		var appVersion string
 		h := history[i]
 		if h.Chart.Metadata != nil {
@@ -138,8 +135,8 @@ func BuildHelmReleaseViewForValues(request service.Request) (component.Component
 		return component.NewText("Error: release not found"), nil
 	}
 
+	actionConfig, err := config.NewActionConfig(request.ClientState().Namespace())
 
-	actionConfig, err := config.NewActionConfig(request.ClientState().Namespace)
 	if err != nil {
 		return component.NewError(component.TitleFromString("Create Helm config: "), err), nil
 	}

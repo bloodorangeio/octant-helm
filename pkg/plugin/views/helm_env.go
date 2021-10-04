@@ -1,10 +1,11 @@
 package views
 
 import (
+	"sort"
+
 	"github.com/vmware-tanzu/octant/pkg/plugin/service"
 	"github.com/vmware-tanzu/octant/pkg/view/component"
 	"helm.sh/helm/v3/pkg/cli"
-	"sort"
 )
 
 func BuildHelmEnvViewForRequest(_ service.Request) (component.Component, error) {

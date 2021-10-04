@@ -17,8 +17,9 @@ limitations under the License.
 package settings // import "github.com/bloodorangeio/octant-helm/pkg/plugin/settings"
 
 import (
-	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
 	"github.com/vmware-tanzu/octant/pkg/plugin"
+
+	"github.com/bloodorangeio/octant-helm/pkg/plugin/actions"
 )
 
 func GetCapabilities() *plugin.Capabilities {
